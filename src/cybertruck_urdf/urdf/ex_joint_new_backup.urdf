@@ -1,0 +1,240 @@
+<?xml version="1.0"?>
+<robot name="cybertruck" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- ****************** ROBOT CONSTANTS *******************************  -->
+  <!-- Define the size of the robot's main chassis in meters -->
+  <xacro:property name="base_width" value="6.55"/>
+  <xacro:property name="base_length" value="2.85"/>
+  <xacro:property name="base_height" value="0.97"/>
+
+  <!-- Define intertial property macros  -->
+  <xacro:macro name="box_inertia" params="m w h d">
+    <inertial>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 ${pi/2}"/>
+      <mass value="${m}"/>
+      <inertia ixx="${(m/12) * (h*h + d*d)}" ixy="0.0" ixz="0.0" iyy="${(m/12) * (w*w + d*d)}" iyz="0.0" izz="${(m/12) * (w*w + h*h)}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- Define Color -->
+
+  <material name="Black">
+    <color rgba="${0/255} ${0/255} ${0/255} 0.4"/>
+  </material>
+  <material name="White">
+    <color rgba="${255/255} ${255/255} ${255/255} 1.0"/>
+  </material>
+  <material name="Red">
+    <color rgba="${255/255} ${0/255} ${0/255} 1.0"/>
+  </material>
+  <material name="Grey">
+    <color rgba="${50/255} ${50/255} ${50/255} 1.0"/>
+  </material>  
+  <material name="Orange">
+    <color rgba="${255/255} ${130/255} ${40/255} 1.0"/>
+  </material>   
+  <material name="Yellow">
+    <color rgba="${255/255} ${255/255} ${0/255} 0.4"/>
+  </material>
+
+<!-- ROBOT BASE FOOTPRINT  -->	
+  <link name="base_footprint">
+  	<xacro:box_inertia m="0" w="0" d="0" h="0"/>
+  </link>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 0.6" rpy="0 0 0"/>
+  </joint>
+
+<!-- base_up_down -->
+  <link name="base_up_down">
+      <visual>
+        <origin xyz="-9.0 -4.65 -17.25" rpy="1.5707963267949 0 1.5707963267949"/>
+        <geometry>
+          <mesh filename="package://cybertruck_urdf/meshes/cybertruck_no_wheel.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="Orange"/>
+      </visual>
+
+      <collision>
+        <geometry>
+          <box size="${base_width} ${base_length} ${base_height + 1.0}"/>
+        </geometry>
+      </collision>
+
+      <xacro:box_inertia m="6000.0" w="${base_width}" d="${base_length}" h="${base_height}"/>
+  </link>
+
+  <gazebo reference="base_up_down">
+    <material>Gazebo/Orange</material>
+  </gazebo>
+
+<!-- base_link -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.3" rpy="1.5707963267949 0 1.5707963267949"/>
+    </visual>
+  </link>
+
+  <joint name="up_down" type="prismatic">
+    <parent link="base_link" />
+    <child link="base_up_down" /> 
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <dynamics damping="0.0" friction="0.0"/>
+    <limit lower="0.15" upper="0.3" effort="0" velocity="0.5" />      
+  </joint>
+
+<!-- left_front_wheel -->
+  <link name="left_front_wheel1">
+    <visual>
+      <origin rpy="-1.5707963267949 0 1.5707963267949" xyz="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="left_front_wheel2">
+    <visual>
+      <origin rpy="1.5707963267949 0 -1.5707963267949" xyz="0.604 0.6 -0.988"/>
+      <geometry>
+        <mesh filename="package://cybertruck_urdf/meshes/wheel.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="Black"/>
+    </visual>
+  </link>
+
+  <joint name="left_front_wheel_joint1" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_front_wheel1"/>
+    <origin rpy="0 0 0" xyz="2.095 0.51 0.494"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <joint name="left_front_wheel_joint2" type="continuous">
+    <parent link="left_front_wheel1"/>
+    <child link="left_front_wheel2"/>
+    <origin rpy="0 0 0" xyz="0 0.16 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>  
+
+  <gazebo reference="left_front_wheel2">
+    <mu1>0.01</mu1>
+    <mu2>0.01</mu2>
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+<!-- left_rear_wheel -->
+  <link name="left_rear_wheel1">
+    <visual>
+      <origin rpy="-1.5707963267949 0 1.5707963267949" xyz="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="left_rear_wheel2">
+    <visual>
+      <origin rpy="1.5707963267949 0 -1.5707963267949" xyz="0.604 0.6 -0.988"/>
+      <geometry>
+        <mesh filename="package://cybertruck_urdf/meshes/wheel.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="Black"/>
+    </visual>
+  </link>
+
+
+  <joint name="left_rear_wheel_joint1" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_rear_wheel1"/>
+    <origin rpy="0 0 0" xyz="-2.095 0.51 0.494"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <joint name="left_rear_wheel_joint2" type="continuous">
+    <parent link="left_rear_wheel1"/>
+    <child link="left_rear_wheel2"/>
+    <origin rpy="0 0 0" xyz="0 0.16 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>    
+
+  <gazebo reference="left_rear_wheel2">
+    <mu1>0.01</mu1>
+    <mu2>0.01</mu2>
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+<!-- right_front_wheel -->
+  <link name="right_front_wheel1">
+    <visual>
+      <origin rpy="-1.5707963267949 0 1.5707963267949" xyz="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="right_front_wheel2">
+    <visual>
+      <origin rpy="1.5707963267949 0 1.5707963267949" xyz="-0.604 -0.6 -0.988"/>
+      <geometry>
+        <mesh filename="package://cybertruck_urdf/meshes/wheel.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="Black"/>
+    </visual>
+  </link>
+
+
+  <joint name="right_front_wheel_joint1" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_front_wheel1"/>
+    <origin rpy="0 0 0" xyz="2.095 -0.51 0.494"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <joint name="right_front_wheel_joint2" type="continuous">
+    <parent link="right_front_wheel1"/>
+    <child link="right_front_wheel2"/>
+    <origin rpy="0 0 0" xyz="0 -0.16 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>   
+
+  <gazebo reference="right_front_wheel2">
+    <mu1>0.01</mu1>
+    <mu2>0.01</mu2>
+    <material>Gazebo/Black</material>
+  </gazebo>  
+
+<!-- right_rear_wheel -->
+  <link name="right_rear_wheel1">
+    <visual>
+      <origin rpy="-1.5707963267949 0 1.5707963267949" xyz="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="right_rear_wheel2">
+    <visual>
+      <origin rpy="1.5707963267949 0 1.5707963267949" xyz="-0.604 -0.6 -0.988"/>
+      <geometry>
+        <mesh filename="package://cybertruck_urdf/meshes/wheel.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="Black"/>
+    </visual>
+  </link>
+
+
+  <joint name="right_rear_wheel_joint1" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_rear_wheel1"/>
+    <origin rpy="0 0 0" xyz="-2.095 -0.51 0.494"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <joint name="right_rear_wheel_joint2" type="continuous">
+    <parent link="right_rear_wheel1"/>
+    <child link="right_rear_wheel2"/>
+    <origin rpy="0 0 0" xyz="0 -0.16 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>  
+
+  <gazebo reference="right_rear_wheel2">
+    <mu1>0.01</mu1>
+    <mu2>0.01</mu2>
+    <material>Gazebo/Black</material>
+  </gazebo>  
+</robot>
